@@ -1,7 +1,6 @@
 import LogoKapivaraLight from "@/assets/logotipo_light.png"
 import LogoKapivaraDark from "@/assets/logotipo_dark.png"
-import { Settings, User, X } from "lucide-react"
-import { toast } from "react-toastify"
+import { Settings, X } from "lucide-react"
 import { useSettingsStore } from "@/stores/settings.store"
 import { useEffect, useState } from "react"
 
