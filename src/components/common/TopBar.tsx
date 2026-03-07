@@ -33,9 +33,9 @@ export const TopBar = ({ searchTerm = "", onSearchChange, onOpenSettings }: TopB
         }
       }, [theme]);
 
-    const handleUser = () => {
-        toast.info(`User not implemented yet`);
-    }
+    // const handleUser = () => {
+    //     toast.info(`User not implemented yet`);
+    // }
 
     return (
         <div className="w-full h-16 p-4">
@@ -65,9 +65,9 @@ export const TopBar = ({ searchTerm = "", onSearchChange, onOpenSettings }: TopB
                     <button onClick={onOpenSettings} className="bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 p-2 rounded-full cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
                         <Settings size={24} />
                     </button>
-                    <button onClick={handleUser} className="bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 p-2 rounded-full cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                    {/* <button onClick={handleUser} className="bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 p-2 rounded-full cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
                         <User size={24} />
-                    </button>
+                    </button> */}
                 </div>
             </div>
         </div>
