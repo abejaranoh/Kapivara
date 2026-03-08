@@ -1,4 +1,4 @@
-name: Build Kapivara
+name: Build & Release Kapivara
 
 on:
   push:
@@ -9,17 +9,33 @@ on:
       - main
 
 jobs:
+  get-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get version from tauri.conf.json
+        id: get_version
+        run: |
+          VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
   build-tauri:
+    needs: get-version
     strategy:
       fail-fast: false
       matrix:
         include:
-          - platform: ubuntu-22.04
-            os: ubuntu-latest
-          - platform: windows-latest
-            os: windows-latest
-          - platform: macos-latest
-            os: macos-latest
+          - os: ubuntu-latest
+            artifact-name: kapivara_${{ needs.get-version.outputs.version }}_linux
+          - os: windows-latest
+            artifact-name: kapivara_${{ needs.get-version.outputs.version }}_windows
+          - os: macos-latest
+            artifact-name: kapivara_${{ needs.get-version.outputs.version }}_macos
 
     runs-on: ${{ matrix.os }}
 
@@ -64,7 +80,28 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: kapivara-${{ matrix.os }}
-          path: |
-            src-tauri/target/release/bundle/
+          name: ${{ matrix.artifact-name }}
+          path: src-tauri/target/release/bundle/
           retention-days: 7
+
+  release:
+    needs: [get-version, build-tauri]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.get-version.outputs.version }}
+          name: Kapivara v${{ needs.get-version.outputs.version }}
+          draft: false
+          prerelease: false
+          files: artifacts/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
