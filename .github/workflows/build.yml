@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   get-version:
@@ -36,11 +37,7 @@ jobs:
       matrix:
         include:
           - os: ubuntu-24.04
-            artifact-name: kapivara_${{ needs.get-version.outputs.version }}_linux.deb
-          #- os: windows-latest
-          #  artifact-name: kapivara_${{ needs.get-version.outputs.version }}_windows
-          #- os: macos-latest
-          #  artifact-name: kapivara_${{ needs.get-version.outputs.version }}_macos
+            artifact-name: kapivara-linux-build
 
     runs-on: ${{ matrix.os }}
 
@@ -99,15 +96,22 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts/
+          merge-multiple: true
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ needs.get-version.outputs.version }}
-          name: Kapivara v${{ needs.get-version.outputs.version }}
+          tag_name: ${{ github.ref_name }}
+          name: Kapivara ${{ github.ref_name }}
           draft: false
           prerelease: false
-          files: artifacts/**/*
+
+          files: |
+            artifacts/*.deb
+            artifacts/*.AppImage
+            artifacts/*.msi
+            artifacts/*.exe
+            artifacts/*.dmg
           fail_on_unmatched_files: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
